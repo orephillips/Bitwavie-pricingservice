@@ -1,7 +1,11 @@
 import requests
-from flask import jsonify, request
+import os
+from flask import Flask, jsonify, request
 
-def get_price(request):
+app = Flask(__name__)
+
+@app.route('/', methods=['GET'])
+def get_price():
     from_sym = request.args.get("fromSym")
     timestamp_sec = request.args.get("timestampSEC")
     service = request.args.get("service", "coinbase")
@@ -20,3 +24,10 @@ def get_price(request):
     }
     response = requests.get(url, params=params)
     return jsonify(response.json())
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({"status": "healthy"})
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
